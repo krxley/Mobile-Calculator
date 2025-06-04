@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Calculator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #000000;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .calculator-container {
+            max-width: 350px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .display {
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            font-size: 2rem;
+            text-align: right;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .btn-calc {
+            height: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 15px;
+            margin: 3px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-calc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-calc:active {
+            transform: translateY(0);
+        }
+        
+        .btn-number {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .btn-operator {
+            background: rgba(255, 140, 0, 0.9);
+            color: white;
+        }
+        
+        .btn-function {
+            background: rgba(108, 117, 125, 0.9);
+            color: white;
+        }
+        
+        .btn-equals {
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+        
+        .btn-history {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .history-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .history-item {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .history-expression {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .history-result {
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .clear-history {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .no-history {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        @media (max-width: 576px) {
+            .calculator-container {
+                margin: 10px;
+                max-width: none;
+            }
+            
+            .display {
+                font-size: 1.5rem;
+                min-height: 60px;
+                padding: 15px;
+            }
+            
+            .btn-calc {
+                height: 50px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="calculator-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-white mb-0">Calculator</h4>
+                <button class="btn btn-calc btn-history" onclick="toggleHistory()">
+                    <i class="fas fa-history"></i> History
+                </button>
+            </div>
+            
+            <div class="display" id="display">0</div>
+            
+            <div class="row g-2">
+                <div class="col-3">
+                    <button class="btn btn-calc btn-function w-100" onclick="clearAll()">AC</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-function w-100" onclick="clearEntry()">CE</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-function w-100" onclick="deleteLast()">⌫</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-operator w-100" onclick="inputOperator('/')">÷</button>
+                </div>
+                
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('7')">7</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('8')">8</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('9')">9</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-operator w-100" onclick="inputOperator('*')">×</button>
+                </div>
+                
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('4')">4</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('5')">5</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('6')">6</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-operator w-100" onclick="inputOperator('-')">−</button>
+                </div>
+                
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('1')">1</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('2')">2</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('3')">3</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-operator w-100" onclick="inputOperator('+')">+</button>
+                </div>
+                
+                <div class="col-6">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputNumber('0')">0</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-number w-100" onclick="inputDecimal()">.</button>
+                </div>
+                <div class="col-3">
+                    <button class="btn btn-calc btn-equals w-100" onclick="calculate()">=</button>
+                </div>
+            </div>
+            
+            <div class="history-panel" id="historyPanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Calculation History</h5>
+                    <button class="btn clear-history" onclick="clearHistory()">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+                <div id="historyList">
+                    <div class="no-history">No calculations yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = '';
+        let waitingForNewInput = false;
+        let calculationHistory = [];
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function inputNumber(num) {
+            if (waitingForNewInput) {
+                currentInput = num;
+                waitingForNewInput = false;
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+            updateDisplay();
+        }
+
+        function inputDecimal() {
+            if (waitingForNewInput) {
+                currentInput = '0.';
+                waitingForNewInput = false;
+            } else if (currentInput.indexOf('.') === -1) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        function inputOperator(op) {
+            if (operator && !waitingForNewInput) {
+                calculate();
+            }
+            
+            previousInput = currentInput;
+            operator = op;
+            waitingForNewInput = true;
+        }
+
+        function calculate() {
+            if (!operator || waitingForNewInput) return;
+
+            let result;
+            let prev = parseFloat(previousInput);
+            let current = parseFloat(currentInput);
+            let expression = `${previousInput} ${getOperatorSymbol(operator)} ${currentInput}`;
+
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        alert('Cannot divide by zero!');
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            // Round to avoid floating point errors
+            result = Math.round(result * 100000000) / 100000000;
+            
+            // Add to history
+            addToHistory(expression, result);
+            
+            currentInput = result.toString();
+            operator = '';
+            waitingForNewInput = true;
+            updateDisplay();
+        }
+
+        function getOperatorSymbol(op) {
+            switch (op) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return op;
+            }
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            previousInput = '';
+            operator = '';
+            waitingForNewInput = false;
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function addToHistory(expression, result) {
+            const historyItem = {
+                expression: expression,
+                result: result,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            calculationHistory.unshift(historyItem);
+            
+            // Keep only last 50 calculations
+            if (calculationHistory.length > 50) {
+                calculationHistory = calculationHistory.slice(0, 50);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<div class="no-history">No calculations yet</div>';
+                return;
+            }
+            
+            historyList.innerHTML = calculationHistory.map(item => `
+                <div class="history-item" onclick="useHistoryResult(${item.result})">
+                    <div class="history-expression">${item.expression}</div>
+                    <div class="history-result">= ${item.result}</div>
+                    <small class="text-muted">${item.timestamp}</small>
+                </div>
+            `).join('');
+        }
+
+        function useHistoryResult(result) {
+            currentInput = result.toString();
+            waitingForNewInput = true;
+            updateDisplay();
+            toggleHistory(); // Close history panel
+        }
+
+        function toggleHistory() {
+            const historyPanel = document.getElementById('historyPanel');
+            if (historyPanel.style.display === 'none' || historyPanel.style.display === '') {
+                historyPanel.style.display = 'block';
+                updateHistoryDisplay();
+            } else {
+                historyPanel.style.display = 'none';
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all calculation history?')) {
+                calculationHistory = [];
+                updateHistoryDisplay();
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9') {
+                inputNumber(key);
+            } else if (key === '.') {
+                inputDecimal();
+            } else if (key === '+') {
+                inputOperator('+');
+            } else if (key === '-') {
+                inputOperator('-');
+            } else if (key === '*') {
+                inputOperator('*');
+            } else if (key === '/') {
+                event.preventDefault();
+                inputOperator('/');
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
